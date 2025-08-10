@@ -8,6 +8,14 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout
                              QMessageBox, QCheckBox, QProgressBar, QFileDialog)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread
 
+def format_with_thousands_separator(number):
+    """将数字转换为千分位表示"""
+    if isinstance(number, int):
+        return "{:,}".format(number)
+    elif isinstance(number, float):
+        return "{:,.2f}".format(number)
+    return str(number)
+
 class TextLoaderThread(QThread):
     progress_updated = pyqtSignal(int)
     loading_complete = pyqtSignal(str)
@@ -239,8 +247,8 @@ class LargeTextComparatorApp(QMainWindow):
             return
         a_lines = len([line for line in self.text_a.toPlainText().split('\n') if line.strip()])
         b_lines = len([line for line in self.text_b.toPlainText().split('\n') if line.strip()])
-        self.a_label.setText(f"List A({a_lines})")
-        self.b_label.setText(f"List B({b_lines})")
+        self.a_label.setText(f"List A({format_with_thousands_separator(a_lines)})")
+        self.b_label.setText(f"List B({format_with_thousands_separator(b_lines)})")
 
     def create_result_tabs(self):
         self.dup_a_tab = QWidget()
@@ -297,10 +305,10 @@ class LargeTextComparatorApp(QMainWindow):
         self.update_unique_table(self.unique_a_tab, unique_in_a, "Original Text")
         self.update_unique_table(self.unique_b_tab, unique_in_b, "Original Text")
 
-        self.tab_widget.setTabText(0, f"Duplicates in List A({len(dup_a)})")
-        self.tab_widget.setTabText(1, f"Duplicates in List B({len(dup_b)})")
-        self.tab_widget.setTabText(2, f"Unique in List A({len(unique_in_a)})")
-        self.tab_widget.setTabText(3, f"Unique in List B({len(unique_in_b)})")
+        self.tab_widget.setTabText(0, f"Duplicates in List A({format_with_thousands_separator(len(dup_a))})")
+        self.tab_widget.setTabText(1, f"Duplicates in List B({format_with_thousands_separator(len(dup_b))})")
+        self.tab_widget.setTabText(2, f"Unique in List A({format_with_thousands_separator(len(unique_in_a))})")
+        self.tab_widget.setTabText(3, f"Unique in List B({format_with_thousands_separator(len(unique_in_b))})")
 
     def update_table(self, tab, data, header_count, header_orig):
         if tab.layout():
@@ -319,7 +327,7 @@ class LargeTextComparatorApp(QMainWindow):
         table.setRowCount(len(sorted_data))
 
         for i, (count_val, (count, orig_examples)) in enumerate(sorted_data):
-            item_count = QTableWidgetItem(str(count))
+            item_count = QTableWidgetItem(format_with_thousands_separator(count))
             item_count.setFlags(item_count.flags() & ~Qt.ItemIsEditable)
             table.setItem(i, 0, item_count)
 
