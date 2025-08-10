@@ -27,6 +27,11 @@ A cross-platform desktop application for efficiently comparing large text lists 
 
 ### Install Dependencies
 
+## Run
+```
+python3 large_text_comparator.py
+```
+
 ## Build
 ```
 python3 -m PyInstaller large_text_comparator.spec
