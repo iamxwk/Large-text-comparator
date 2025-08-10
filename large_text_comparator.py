@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
                              QWidget, QLabel, QPlainTextEdit, QPushButton, QTabWidget,
                              QTableWidget, QTableWidgetItem, QHeaderView, QSplitter,
-                             QMessageBox, QCheckBox, QProgressBar)
+                             QMessageBox, QCheckBox, QProgressBar, QFileDialog)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread
 
 class TextLoaderThread(QThread):
@@ -109,7 +109,7 @@ class CompareThread(QThread):
 class LargeTextComparatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Large text comparator v0.5 by:xwk")
+        self.setWindowTitle("Large text comparator v0.5.1 by:xwk")
         self.setGeometry(100, 100, 1200, 800)
         self.bulk_operation = False
         self.initUI()
@@ -121,22 +121,42 @@ class LargeTextComparatorApp(QMainWindow):
         # Input area
         input_splitter = QSplitter()
 
+        # List A section with file button
         a_widget = QWidget()
         a_layout = QVBoxLayout(a_widget)
+        
+        # List A file button and label
+        a_file_layout = QHBoxLayout()
+        self.load_a_btn = QPushButton("Load File...")
+        self.load_a_btn.clicked.connect(lambda: self.load_file(0))
         self.a_label = QLabel("List A(0)")
-        a_layout.addWidget(self.a_label)
+        a_file_layout.addWidget(self.load_a_btn)
+        a_file_layout.addStretch()  # 添加弹性空间，让标签靠右
+        a_file_layout.addWidget(self.a_label)
+        a_layout.addLayout(a_file_layout)
+        
         self.text_a = QPlainTextEdit()
-        self.text_a.setPlaceholderText("Paste text list A here, one per line")
+        self.text_a.setPlaceholderText("Paste text list A here, one per line or load from file")
         self.text_a.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.text_a.textChanged.connect(self.update_line_counts)
         a_layout.addWidget(self.text_a)
 
+        # List B section with file button
         b_widget = QWidget()
         b_layout = QVBoxLayout(b_widget)
+        
+        # List B file button and label
+        b_file_layout = QHBoxLayout()
+        self.load_b_btn = QPushButton("Load File...")
+        self.load_b_btn.clicked.connect(lambda: self.load_file(1))
         self.b_label = QLabel("List B(0)")
-        b_layout.addWidget(self.b_label)
+        b_file_layout.addWidget(self.load_b_btn)
+        b_file_layout.addStretch()  # 添加弹性空间，让标签靠右
+        b_file_layout.addWidget(self.b_label)
+        b_layout.addLayout(b_file_layout)
+        
         self.text_b = QPlainTextEdit()
-        self.text_b.setPlaceholderText("Paste text list B here, one per line")
+        self.text_b.setPlaceholderText("Paste text list B here, one per line or load from file")
         self.text_b.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.text_b.textChanged.connect(self.update_line_counts)
         b_layout.addWidget(self.text_b)
@@ -181,6 +201,39 @@ class LargeTextComparatorApp(QMainWindow):
 
         # Add status bar
         self.statusBar().showMessage("Ready")
+
+    def load_file(self, list_index):
+        """加载文件到指定的文本框"""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            f"Select File for {'List A' if list_index == 0 else 'List B'}",
+            "",
+            "Text Files (*.txt);;All Files (*)"
+        )
+        
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    content = file.read()
+            except UnicodeDecodeError:
+                try:
+                    with open(file_path, 'r', encoding='gbk') as file:
+                        content = file.read()
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to read file: {str(e)}")
+                    return
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Failed to read file: {str(e)}")
+                return
+            
+            # 将文件内容加载到对应的文本框
+            if list_index == 0:
+                self.text_a.setPlainText(content)
+            else:
+                self.text_b.setPlainText(content)
+            
+            # 更新行数统计
+            self.update_line_counts()
 
     def update_line_counts(self):
         if self.bulk_operation:
