@@ -82,9 +82,8 @@ class CompareThread(QThread):
         unique_in_a = {val: map_a[val] for val in sorted(set_a - set_b)}
         unique_in_b = {val: map_b[val] for val in sorted(set_b - set_a)}
 
-        elapsed = time.time() - start
         self.progress_signal.emit(100, "Completed")
-        self.finished_signal.emit(dup_a, dup_b, unique_in_a, unique_in_b, elapsed)
+        self.finished_signal.emit(dup_a, dup_b, unique_in_a, unique_in_b, start)
 
     def analyze(self, orig, cmp):
         counter = Counter(cmp)
@@ -109,7 +108,7 @@ class CompareThread(QThread):
 class LargeTextComparatorApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Large text comparator v0.5.1 by:xwk")
+        self.setWindowTitle("Large text comparator v0.5.2 by:xwk")
         self.setGeometry(100, 100, 1200, 800)
         self.bulk_operation = False
         self.initUI()
@@ -124,7 +123,7 @@ class LargeTextComparatorApp(QMainWindow):
         # List A section with file button
         a_widget = QWidget()
         a_layout = QVBoxLayout(a_widget)
-        
+
         # List A file button and label
         a_file_layout = QHBoxLayout()
         self.load_a_btn = QPushButton("Load File...")
@@ -134,7 +133,7 @@ class LargeTextComparatorApp(QMainWindow):
         a_file_layout.addStretch()  # 添加弹性空间，让标签靠右
         a_file_layout.addWidget(self.a_label)
         a_layout.addLayout(a_file_layout)
-        
+
         self.text_a = QPlainTextEdit()
         self.text_a.setPlaceholderText("Paste text list A here, one per line or load from file")
         self.text_a.setLineWrapMode(QPlainTextEdit.NoWrap)
@@ -144,7 +143,7 @@ class LargeTextComparatorApp(QMainWindow):
         # List B section with file button
         b_widget = QWidget()
         b_layout = QVBoxLayout(b_widget)
-        
+
         # List B file button and label
         b_file_layout = QHBoxLayout()
         self.load_b_btn = QPushButton("Load File...")
@@ -154,7 +153,7 @@ class LargeTextComparatorApp(QMainWindow):
         b_file_layout.addStretch()  # 添加弹性空间，让标签靠右
         b_file_layout.addWidget(self.b_label)
         b_layout.addLayout(b_file_layout)
-        
+
         self.text_b = QPlainTextEdit()
         self.text_b.setPlaceholderText("Paste text list B here, one per line or load from file")
         self.text_b.setLineWrapMode(QPlainTextEdit.NoWrap)
@@ -205,12 +204,12 @@ class LargeTextComparatorApp(QMainWindow):
     def load_file(self, list_index):
         """加载文件到指定的文本框"""
         file_path, _ = QFileDialog.getOpenFileName(
-            self, 
+            self,
             f"Select File for {'List A' if list_index == 0 else 'List B'}",
             "",
             "Text Files (*.txt);;All Files (*)"
         )
-        
+
         if file_path:
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
@@ -225,13 +224,13 @@ class LargeTextComparatorApp(QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Failed to read file: {str(e)}")
                 return
-            
+
             # 将文件内容加载到对应的文本框
             if list_index == 0:
                 self.text_a.setPlainText(content)
             else:
                 self.text_b.setPlainText(content)
-            
+
             # 更新行数统计
             self.update_line_counts()
 
@@ -283,8 +282,10 @@ class LargeTextComparatorApp(QMainWindow):
         self.progress_bar.setValue(value)
         self.statusBar().showMessage(message)
 
-    def on_compare_finished(self, dup_a, dup_b, unique_in_a, unique_in_b, elapsed):
+    def on_compare_finished(self, dup_a, dup_b, unique_in_a, unique_in_b, start):
         self.update_result_tabs(dup_a, dup_b, unique_in_a, unique_in_b)
+
+        elapsed = time.time() - start
         self.statusBar().showMessage(f"Comparison completed, took {elapsed:.2f} seconds")
         self.progress_bar.setVisible(False)
         self.compare_btn.setEnabled(True)
