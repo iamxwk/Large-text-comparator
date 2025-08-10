@@ -4,7 +4,7 @@ A cross-platform desktop application for efficiently comparing large text lists 
 
 ![Python Version](https://img.shields.io/badge/Python-3.x-blue)
 ![PyQt5](https://img.shields.io/badge/PyQt5-5.x-green)
-
+[
 ## Features
 
 - **Fast Comparison**: Quickly compare two large text lists (one item per line)
@@ -17,7 +17,7 @@ A cross-platform desktop application for efficiently comparing large text lists 
 
 ## Screenshots
 
-[Add screenshots of your application here if available]
+<img src="https://raw.githubusercontent.com/iamxwk/Large-text-comparator/refs/heads/main/assets/img1.png"  />
 
 ## Installation
 
@@ -26,3 +26,8 @@ A cross-platform desktop application for efficiently comparing large text lists 
 - PyQt5
 
 ### Install Dependencies
+
+## Build
+```
+python3 -m PyInstaller large_text_comparator.spec
+```
