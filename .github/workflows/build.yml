@@ -41,7 +41,7 @@ jobs:
           ls -lh dist/
 
       - name: Upload built executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: large-text-comparator-${{ runner.os }}
           path: dist/LargeTextComparator*
