@@ -29,7 +29,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Large text comparator',
+    name='LargeTextComparator',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -46,17 +46,17 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='Large text comparator'
+    name='LargeTextComparator'
 )
 
 app = BUNDLE(
     coll,
-    name='Large text comparator.app',
+    name='LargeTextComparator.app',
     icon=icon_file,
     bundle_identifier='com.xwk.large_text_comparator',
     info_plist={
-        'CFBundleName': 'Large text comparator',
-        'CFBundleDisplayName': 'Large text comparator',
+        'CFBundleName': 'LargeTextComparator',
+        'CFBundleDisplayName': 'LargeTextComparator',
         'CFBundleVersion': '1.0.0',
         'CFBundleShortVersionString': '1.0.0',
         'NSHighResolutionCapable': 'True',
