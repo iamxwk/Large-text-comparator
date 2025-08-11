@@ -42,14 +42,7 @@ jobs:
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.ico
           elif [ "${{ runner.os }}" == "macOS" ]; then
             echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
-            pyinstaller large_text_comparator.spec --name "LargeTextComparator" --icon=app_icon.icns
-          else
-            echo "icon_file=" >> $GITHUB_OUTPUT
-          fi
-          
-          if [ -n "${{ steps.set_icon.outputs.icon_file }}" ]; then
-            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
-            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=${{ steps.set_icon.outputs.icon_file }}
+            pyinstaller large_text_comparator.spec
           else
             echo "No specific icon for this platform, building without icon"
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
