@@ -1,0 +1,47 @@
+name: Build Windows & macOS Executables
+
+on:
+  push:
+    branches:
+      - main  # 或你的主分支，比如 master
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # PyQt5 对 3.8~3.11 支持较好
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyQt5
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --icon=app_icon.ico large_text_comparator.py --name "LargeTextComparator"
+        shell: bash
+
+      - name: Show output executable location
+        run: |
+          echo "Check the executable in: dist/"
+          ls -lh dist/
+
+      - name: Upload built executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: large-text-comparator-${{ runner.os }}
+          path: dist/LargeTextComparator*
