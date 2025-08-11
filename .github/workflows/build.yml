@@ -3,7 +3,7 @@ name: Build Windows & macOS Executables
 on:
   push:
     branches:
-      - main  # 或你的分支名，比如 master
+      - main
   pull_request:
     branches:
       - main
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # 推荐 3.8 ~ 3.11，PyQt5 兼容性较好
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -31,10 +31,31 @@ jobs:
           pip install pyinstaller
         shell: bash
 
+      - name: Determine icon file based on OS
+        id: set_icon
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            echo "icon_file=app_icon.ico" >> $GITHUB_OUTPUT
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            echo "icon_file=app_icon.icns" >> $GITHUB_OUTPUT
+          else
+            echo "icon_file=" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Show icon file to be used
+        run: |
+          echo "Using icon file: ${{ steps.set_icon.outputs.icon_file }}"
+
       - name: Build with PyInstaller
         run: |
-          echo "Running PyInstaller on ${{ runner.os }}..."
-          pyinstaller --onefile --windowed --icon=app_icon.icns large_text_comparator.py --name "LargeTextComparator"
+          if [ -n "${{ steps.set_icon.outputs.icon_file }}" ]; then
+            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=${{ steps.set_icon.outputs.icon_file }}
+          else
+            echo "No specific icon for this platform, building without icon"
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
+          fi
         shell: bash
 
       - name: Show dist contents
