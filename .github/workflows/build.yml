@@ -36,7 +36,7 @@ jobs:
           if [ "${{ runner.os }}" == "Windows" ]; then
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.ico
           elif [ "${{ runner.os }}" == "macOS" ]; then
-            pyinstaller large_text_comparator.spec
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.icns
           else
             echo "No specific icon for this platform, building without icon"
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
