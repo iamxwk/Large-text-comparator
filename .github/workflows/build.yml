@@ -31,24 +31,22 @@ jobs:
           pip install pyinstaller
         shell: bash
 
-      - name: Determine icon file based on OS
-        id: set_icon
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            echo "icon_file=app_icon.ico" >> $GITHUB_OUTPUT
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            echo "icon_file=app_icon.icns" >> $GITHUB_OUTPUT
-          else
-            echo "icon_file=" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
       - name: Show icon file to be used
         run: |
           echo "Using icon file: ${{ steps.set_icon.outputs.icon_file }}"
 
       - name: Build with PyInstaller
         run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.ico
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
+            pyinstaller large_text_comparator.spec --name "LargeTextComparator" --icon=app_icon.icns
+          else
+            echo "icon_file=" >> $GITHUB_OUTPUT
+          fi
+          
           if [ -n "${{ steps.set_icon.outputs.icon_file }}" ]; then
             echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=${{ steps.set_icon.outputs.icon_file }}
