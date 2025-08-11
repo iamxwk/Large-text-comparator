@@ -29,30 +29,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install PyQt5
           pip install pyinstaller
-          brew install upx
         shell: bash
-
-      - name: Determine icon file based on OS
-        id: set_icon
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            echo "icon_file=app_icon.ico" >> $GITHUB_OUTPUT
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            echo "icon_file=app_icon.icns" >> $GITHUB_OUTPUT
-          else
-            echo "icon_file=" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-
-      - name: Show icon file to be used
-        run: |
-          echo "Using icon file: ${{ steps.set_icon.outputs.icon_file }}"
 
       - name: Build with PyInstaller
         run: |
-          if [ -n "${{ steps.set_icon.outputs.icon_file }}" ]; then
-            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
-            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=${{ steps.set_icon.outputs.icon_file }}
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.ico
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            pyinstaller large_text_comparator.spec
           else
             echo "No specific icon for this platform, building without icon"
             pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
