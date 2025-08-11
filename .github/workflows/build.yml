@@ -26,9 +26,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install PyQt5
-          python3 -m pip install PyInstaller
+          python -m pip install --upgrade pip
+          pip install PyQt5
+          pip install pyinstaller
           brew install upx
+        shell: bash
+
+      - name: Determine icon file based on OS
+        id: set_icon
+        run: |
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            echo "icon_file=app_icon.ico" >> $GITHUB_OUTPUT
+          elif [ "${{ runner.os }}" == "macOS" ]; then
+            echo "icon_file=app_icon.icns" >> $GITHUB_OUTPUT
+          else
+            echo "icon_file=" >> $GITHUB_OUTPUT
+          fi
         shell: bash
 
       - name: Show icon file to be used
@@ -37,15 +50,12 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
+          if [ -n "${{ steps.set_icon.outputs.icon_file }}" ]; then
             echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
-            python3 -m PyInstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=app_icon.ico
-          elif [ "${{ runner.os }}" == "macOS" ]; then
-            echo "Building with icon: ${{ steps.set_icon.outputs.icon_file }}"
-            python3 -m PyInstaller large_text_comparator.spec
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator" --icon=${{ steps.set_icon.outputs.icon_file }}
           else
             echo "No specific icon for this platform, building without icon"
-            python3 -m PyInstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
+            pyinstaller --onefile --windowed large_text_comparator.py --name "LargeTextComparator"
           fi
         shell: bash
 
